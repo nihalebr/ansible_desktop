@@ -1,0 +1,32 @@
+---
+- name: Testing localhost
+  hosts: localhost
+  connection: local
+  become: true
+
+  pre_tasks:
+      - name: Pre-run | update package cache (RHEL based system)
+        tags: always
+        ansible.builtin.dnf:
+            name: "*"
+            update_cache: true
+        when: ansible_os_family == "RedHat"
+
+      - name: Pre-run | update package cache (debian, etc)
+        tags: always
+        ansible.builtin.apt:
+            name: "*"
+            update_cache: true
+        when: ansible_os_family == "Debian"
+
+  tasks:
+      - name: Print Facts
+        ansible.builtin.debug:
+            msg: "{{ ansible_facts }}"
+
+  post_tasks:
+      - name: Send ntfy message
+        ansible.builtin.uri:
+            url: "https://ntfy.nihalebr.dev/ntfy"
+            method: POST
+            body: " {{ inventory_hostname }} Packages are is successfully installed"

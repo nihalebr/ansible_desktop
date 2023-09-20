@@ -1,0 +1,5 @@
+# log files
+ansible.log
+
+.vscode
+vars
